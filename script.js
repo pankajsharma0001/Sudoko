@@ -44,6 +44,7 @@ function init() {
     loadStatistics();
     setupEventListeners();
     initModals();
+    checkDailyBonus();
 }
 
 // Load statistics from localStorage
@@ -223,7 +224,7 @@ function showGetHintsModal() {
     
     document.getElementById('close-hints-btn').addEventListener('click', function() {
         restoreOriginalModalButton(originalButtonHTML);
-        hideMessageModal();
+        // hideMessageModal();
     });
     
     // Show modal
@@ -910,23 +911,42 @@ function showConfirmModal(title, content, onConfirm, onCancel) {
     modal.classList.remove('hidden');
 }
 
-// Restore original OK button after confirmation modal
+// Restore original OK button after hint modal - FIXED VERSION
 function restoreOriginalModalButton(originalHTML) {
-    const buttonContainer = document.querySelector('#message-modal .flex');
-    if (buttonContainer) {
-        buttonContainer.outerHTML = originalHTML;
+    const hintContainer = document.getElementById('hint-options-container');
+    if (hintContainer) {
+        hintContainer.outerHTML = originalHTML;
         // Re-attach event listener to the new OK button
         document.getElementById('message-ok-btn').addEventListener('click', hideMessageModal);
+    } else {
+        // Fallback: directly reset the modal structure
+        const modalContent = document.querySelector('#message-modal .bg-white');
+        if (modalContent) {
+            const lastChild = modalContent.lastElementChild;
+            if (lastChild && lastChild.id !== 'message-ok-btn') {
+                lastChild.outerHTML = originalHTML;
+                document.getElementById('message-ok-btn').addEventListener('click', hideMessageModal);
+            }
+        }
     }
+    
+    // Always hide the modal after restoring
+    hideMessageModal();
 }
 
-// Make sure hideMessageModal properly hides everything
+// Hide message modal - ROBUST VERSION
 function hideMessageModal() {
     const modal = document.getElementById('message-modal');
     modal.classList.add('hidden');
     
     // Force a reflow
     void modal.offsetHeight;
+    
+    // Clean up any hint options container that might be left
+    const hintContainer = document.getElementById('hint-options-container');
+    if (hintContainer) {
+        hintContainer.remove();
+    }
 }
 
 function startAISolvingProcess() {
@@ -945,7 +965,7 @@ function startAISolvingProcess() {
     pauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
     pauseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
     pauseBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-    
+
     // Disable buttons for both mobile and desktop
     const buttonsToDisable = [
         'check-btn-mobile', 'hint-btn-mobile', 'solve-btn-mobile', 'get-hints-btn-mobile',
@@ -1197,6 +1217,25 @@ function handleKeyPress(e) {
     }
     else if (key === 'Backspace' || key === 'Delete') {
         eraseCell();
+    }
+}
+
+// Add daily login bonus
+function checkDailyBonus() {
+    const lastLogin = localStorage.getItem('lastLoginDate');
+    const today = new Date().toDateString();
+    
+    if (lastLogin !== today) {
+        const dailyBonus = 5; // 5 coins daily
+        gameState.coins += dailyBonus;
+        localStorage.setItem('lastLoginDate', today);
+        saveStatistics();
+        
+        showMessageModal(
+            'Daily Bonus!',
+            `You received ${dailyBonus} coins as daily login bonus!`,
+            'success'
+        );
     }
 }
 
