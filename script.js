@@ -9,6 +9,8 @@ let gameState = {
     timerInterval: null,
     elapsedTime: 0,
     hintsUsed: 0,
+    hintsRemaining: 3,
+    coins: 10, 
     gamesPlayed: 0,
     bestTimes: {
         easy: null,
@@ -50,7 +52,9 @@ function loadStatistics() {
     gameState.gamesPlayed = stats.gamesPlayed || 0;
     gameState.bestTimes = stats.bestTimes || { easy: null, medium: null, hard: null };
     gameState.hintsUsed = stats.hintsUsed || 0;
-    
+    gameState.hintsRemaining = stats.hintsRemaining !== undefined ? stats.hintsRemaining : 3;
+    gameState.coins = stats.coins !== undefined ? stats.coins : 10;
+
     updateStatisticsDisplay();
 }
 
@@ -59,7 +63,9 @@ function saveStatistics() {
     const stats = {
         gamesPlayed: gameState.gamesPlayed,
         bestTimes: gameState.bestTimes,
-        hintsUsed: gameState.hintsUsed
+        hintsUsed: gameState.hintsUsed,
+        hintsRemaining: gameState.hintsRemaining,
+        coins: gameState.coins
     };
     localStorage.setItem('sudokuStats', JSON.stringify(stats));
 }
@@ -71,6 +77,38 @@ function updateStatisticsDisplay() {
     
     const bestTime = gameState.bestTimes[gameState.difficulty];
     bestTimeElement.textContent = bestTime ? formatTime(bestTime) : '--:--';
+
+    updateHintButton();
+}
+
+// Update hint button display
+function updateHintButton() {
+    const hintBtns = document.querySelectorAll('#hint-btn-mobile, #hint-btn-desktop');
+    
+    hintBtns.forEach(hintBtn => {
+        if (hintBtn) {
+            hintBtn.innerHTML = `<i class="fas fa-lightbulb mr-2"></i>Hint (${gameState.hintsRemaining})`;
+            
+            if (gameState.hintsRemaining <= 0) {
+                hintBtn.disabled = true;
+                hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                hintBtn.disabled = false;
+                hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    });
+    
+    // Update coins display for desktop and mobile
+    const coinsDisplay = document.getElementById('coins-display');
+    const mobileCoinsDisplay = document.getElementById('mobile-coins-display');
+    
+    if (coinsDisplay) {
+        coinsDisplay.textContent = gameState.coins;
+    }
+    if (mobileCoinsDisplay) {
+        mobileCoinsDisplay.textContent = gameState.coins;
+    }
 }
 
 // Set up event listeners
@@ -80,21 +118,32 @@ function setupEventListeners() {
     document.getElementById('medium-btn').addEventListener('click', () => startGame('medium'));
     document.getElementById('hard-btn').addEventListener('click', () => startGame('hard'));
     
-    // Game page buttons
-    document.getElementById('check-btn').addEventListener('click', checkBoard);
-    document.getElementById('hint-btn').addEventListener('click', provideHint);
-    document.getElementById('solve-btn').addEventListener('click', startAISolving);
-    document.getElementById('new-game-btn').addEventListener('click', () => startGame(gameState.difficulty));
-    document.getElementById('home-btn').addEventListener('click', goHome);
-    document.getElementById('erase-btn').addEventListener('click', eraseCell);
+    // Game page buttons - MOBILE
+    document.getElementById('check-btn-mobile').addEventListener('click', checkBoard);
+    document.getElementById('hint-btn-mobile').addEventListener('click', provideHint);
+    document.getElementById('solve-btn-mobile').addEventListener('click', startAISolving);
+    document.getElementById('get-hints-btn-mobile').addEventListener('click', showGetHintsModal);
     
-    // Desktop buttons
+    // Game page buttons - DESKTOP  
+    document.getElementById('check-btn-desktop').addEventListener('click', checkBoard);
+    document.getElementById('hint-btn-desktop').addEventListener('click', provideHint);
+    document.getElementById('solve-btn-desktop').addEventListener('click', startAISolving);
+    document.getElementById('get-hints-btn-desktop').addEventListener('click', showGetHintsModal);
+    
+    // New Game and Home buttons - MOBILE
+    document.getElementById('new-game-btn-mobile').addEventListener('click', () => startGame(gameState.difficulty));
+    document.getElementById('home-btn-mobile').addEventListener('click', goHome);
+    
+    // New Game and Home buttons - DESKTOP
     document.getElementById('new-game-btn-desktop').addEventListener('click', () => startGame(gameState.difficulty));
     document.getElementById('home-btn-desktop').addEventListener('click', goHome);
     
+    // Erase button - MOBILE
+    document.getElementById('erase-btn-mobile').addEventListener('click', eraseCell);
+    
     // Number buttons (mobile only)
     document.querySelectorAll('.number-btn').forEach(btn => {
-        if (btn.id !== 'erase-btn') {
+        if (!btn.id.includes('erase')) {
             btn.addEventListener('click', () => {
                 const number = parseInt(btn.getAttribute('data-number'));
                 fillCell(number);
@@ -119,7 +168,113 @@ function setupEventListeners() {
     
     // Keyboard events
     document.addEventListener('keydown', handleKeyPress);
+}
 
+// Show Get Hints modal - FIXED VERSION
+function showGetHintsModal() {
+    const modal = document.getElementById('message-modal');
+    const icon = document.getElementById('message-icon');
+    const titleEl = document.getElementById('message-title');
+    const contentEl = document.getElementById('message-content');
+    const okBtn = document.getElementById('message-ok-btn');
+    
+    // Store original button HTML to restore later
+    const originalButtonHTML = okBtn.outerHTML;
+    
+    // Set content
+    titleEl.textContent = 'Get More Hints';
+    contentEl.innerHTML = `You have ${gameState.coins} coins available.<br><br>
+        <strong>Options:</strong><br>
+        • Watch ad: Get 2 free hints<br>
+        • Buy with coins: 5 coins = 3 hints<br>
+        • Daily reward: Come back tomorrow!`;
+    
+    // Set icon
+    icon.innerHTML = '<i class="fas fa-lightbulb"></i>';
+    icon.className = 'text-6xl mb-4 text-yellow-500';
+    
+    // Replace OK button with hint options
+    okBtn.outerHTML = `
+        <div class="space-y-3" id="hint-options-container">
+            <button id="watch-ad-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg transition">
+                <i class="fas fa-tv mr-2"></i>Watch Ad (2 Hints)
+            </button>
+            <button id="buy-hints-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 rounded-lg transition ${gameState.coins < 5 ? 'opacity-50 cursor-not-allowed' : ''}">
+                <i class="fas fa-coins mr-2"></i>Buy Hints (5 Coins = 3 Hints)
+            </button>
+            <button id="close-hints-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 rounded-lg transition">
+                Cancel
+            </button>
+        </div>
+    `;
+    
+    // Add event listeners for the new buttons
+    document.getElementById('watch-ad-btn').addEventListener('click', function() {
+        restoreOriginalModalButton(originalButtonHTML);
+        getFreeHints();
+    });
+    
+    document.getElementById('buy-hints-btn').addEventListener('click', function() {
+        if (gameState.coins >= 5) {
+            restoreOriginalModalButton(originalButtonHTML);
+            buyHintsWithCoins();
+        }
+    });
+    
+    document.getElementById('close-hints-btn').addEventListener('click', function() {
+        restoreOriginalModalButton(originalButtonHTML);
+        hideMessageModal();
+    });
+    
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+// Restore original OK button after hint modal
+function restoreOriginalModalButton(originalHTML) {
+    const hintContainer = document.getElementById('hint-options-container');
+    if (hintContainer) {
+        hintContainer.outerHTML = originalHTML;
+        // Re-attach event listener to the new OK button
+        document.getElementById('message-ok-btn').addEventListener('click', hideMessageModal);
+    }
+}
+
+// Get free hints (simulate watching ad)
+function getFreeHints() {
+    gameState.hintsRemaining += 2;
+    saveStatistics();
+    updateStatisticsDisplay();
+    hideMessageModal();
+    
+    showMessageModal(
+        'Hints Added!',
+        'You received 2 free hints! You now have ' + gameState.hintsRemaining + ' hints remaining.',
+        'success'
+    );
+}
+
+// Buy hints with coins
+function buyHintsWithCoins() {
+    if (gameState.coins >= 5) {
+        gameState.coins -= 5;
+        gameState.hintsRemaining += 3;
+        saveStatistics();
+        updateStatisticsDisplay();
+        hideMessageModal();
+        
+        showMessageModal(
+            'Purchase Successful!',
+            'You bought 3 hints! You now have ' + gameState.hintsRemaining + ' hints remaining and ' + gameState.coins + ' coins left.',
+            'success'
+        );
+    } else {
+        showMessageModal(
+            'Not Enough Coins',
+            'You need 5 coins to buy hints. Complete puzzles to earn more coins!',
+            'error'
+        );
+    }
 }
 
 // Review Solution function
@@ -127,7 +282,7 @@ function reviewSolution() {
     // Hide the completion modal
     gameCompleteModal.classList.add('hidden');
     gameState.isSolving = false;
-    
+
     // Highlight the solution for review
     highlightSolution();
     
@@ -178,7 +333,6 @@ function startGame(difficulty) {
     }
     
     gameState.difficulty = difficulty;
-    gameState.hintsUsed = 0;
     gameState.selectedCell = null;
     gameState.solvedByAI = false;
     gameState.isSolving = false;
@@ -627,6 +781,16 @@ function checkBoard() {
 function provideHint() {
     if (gameState.isSolving) return;
     
+    // Check if hints are available
+    if (gameState.hintsRemaining <= 0) {
+        showMessageModal(
+            'No Hints Left',
+            `You've used all your hints! Complete puzzles to earn more hints or get free hints.`,
+            'warning'
+        );
+        return;
+    }
+
     if (!gameState.selectedCell) {
         showMessageModal(
             'Select a Cell',
@@ -652,7 +816,9 @@ function provideHint() {
         }, 1000);
         
         gameState.hintsUsed++;
-        hintsUsedElement.textContent = gameState.hintsUsed;
+        gameState.hintsRemaining--;
+
+        updateStatisticsDisplay();
         
         if (isBoardComplete()) {
             completeGame();
@@ -768,22 +934,30 @@ function startAISolvingProcess() {
     const messageModal = document.getElementById('message-modal');
     messageModal.classList.add('hidden');
     
-    // Force hide any other potential overlays
-    document.querySelectorAll('.fixed.inset-0.bg-black').forEach(modal => {
-        if (modal.id !== 'ai-solving-modal') {
-            modal.classList.add('hidden');
-        }
-    });
-    
     // Now show the AI modal
     gameState.isSolving = true;
     gameState.aiStep = 0;
     aiSolvingModal.classList.remove('hidden');
     aiStepCount.textContent = gameState.aiStep;
     
-    document.getElementById('check-btn').disabled = true;
-    document.getElementById('hint-btn').disabled = true;
-    document.getElementById('solve-btn').disabled = true;
+    // Set pause button to initial "Pause" state
+    const pauseBtn = document.getElementById('pause-ai-btn');
+    pauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    pauseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+    pauseBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+    
+    // Disable buttons for both mobile and desktop
+    const buttonsToDisable = [
+        'check-btn-mobile', 'hint-btn-mobile', 'solve-btn-mobile', 'get-hints-btn-mobile',
+        'check-btn-desktop', 'hint-btn-desktop', 'solve-btn-desktop', 'get-hints-btn-desktop'
+    ];
+    buttonsToDisable.forEach(id => {
+        const btn = document.getElementById(id);
+         if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    });
     
     solveStepByStep();
 }
@@ -791,6 +965,11 @@ function startAISolvingProcess() {
 
 // Solve the board step by step
 function solveStepByStep() {
+    // Clear any existing interval first
+    if (gameState.aiInterval) {
+        clearInterval(gameState.aiInterval);
+    }
+
     let currentRow = 0;
     let currentCol = 0;
     
@@ -832,20 +1011,30 @@ function solveStepByStep() {
     }, 300);
 }
 
-// Pause AI solving
+// Pause AI solving - FIXED VERSION
 function pauseAISolving() {
+    const pauseBtn = document.getElementById('pause-ai-btn');
+    
     if (gameState.isSolving) {
+        // Currently solving, so pause it
         clearInterval(gameState.aiInterval);
         gameState.isSolving = false;
-        document.getElementById('pause-ai-btn').innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
-        document.getElementById('pause-ai-btn').classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-        document.getElementById('pause-ai-btn').classList.add('bg-green-500', 'hover:bg-green-600');
+        
+        // Update button to show "Resume"
+        pauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
+        pauseBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+        pauseBtn.classList.add('bg-green-500', 'hover:bg-green-600');
     } else {
+        // Currently paused, so resume it
         gameState.isSolving = true;
+        
+        // Update button to show "Pause"
+        pauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        pauseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+        pauseBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+        
+        // Restart the solving process
         solveStepByStep();
-        document.getElementById('pause-ai-btn').innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        document.getElementById('pause-ai-btn').classList.remove('bg-green-500', 'hover:bg-green-600');
-        document.getElementById('pause-ai-btn').classList.add('bg-yellow-500', 'hover:bg-yellow-600');
     }
 }
 
@@ -855,9 +1044,18 @@ function stopAISolving() {
     gameState.isSolving = false;
     aiSolvingModal.classList.add('hidden');
     
-    document.getElementById('check-btn').disabled = false;
-    document.getElementById('hint-btn').disabled = false;
-    document.getElementById('solve-btn').disabled = false;
+     // Enable buttons for both mobile and desktop
+    const buttonsToEnable = [
+        'check-btn-mobile', 'hint-btn-mobile', 'solve-btn-mobile', 'get-hints-btn-mobile',
+        'check-btn-desktop', 'hint-btn-desktop', 'solve-btn-desktop', 'get-hints-btn-desktop'
+    ];
+    buttonsToEnable.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    });
 }
 
 // Complete the game
@@ -881,6 +1079,25 @@ function completeGame() {
         gameState.bestTimes[gameState.difficulty] = currentTime;
     }
     
+    // Reward player for completing puzzle (unless AI solved it)
+    if (!gameState.solvedByAI) {
+        const rewardHints = 1;
+        const rewardCoins = gameState.difficulty === 'easy' ? 2 : 
+                           gameState.difficulty === 'medium' ? 3 : 5;
+        
+        gameState.hintsRemaining += rewardHints;
+        gameState.coins += rewardCoins;
+        
+        // Show reward message
+        setTimeout(() => {
+            showMessageModal(
+                'Reward Earned!',
+                `You earned ${rewardHints} hint${rewardHints > 1 ? 's' : ''} and ${rewardCoins} coins for completing the ${gameState.difficulty} puzzle!`,
+                'success'
+            );
+        }, 1000);
+    }
+
     saveStatistics();
     
     // Safely update elements that exist
@@ -891,10 +1108,6 @@ function completeGame() {
     const completionMessage = document.getElementById('completion-message');
     const solvedBy = document.getElementById('solved-by');
     const reviewBtn = document.getElementById('review-solution-btn');
-
-    console.log('Review button found:', reviewBtn);
-    console.log('Completion message found:', completionMessage);
-    console.log('Solved by found:', solvedBy);
 
     if (completionMessage) {
         completionMessage.textContent = gameState.solvedByAI 
@@ -909,14 +1122,13 @@ function completeGame() {
     if (reviewBtn) {
         if (gameState.solvedByAI) {
             reviewBtn.classList.remove('hidden');
-            console.log('Showing review button');
         } else {
             reviewBtn.classList.add('hidden');
-            console.log('Hiding review button');
         }
     }
 
     gameCompleteModal.classList.remove('hidden');
+    updateStatisticsDisplay();
 }
 
 // Start the timer
@@ -1018,14 +1230,33 @@ function showMessageModal(title, content, type = 'info') {
             icon.innerHTML = '<i class="fas fa-info-circle"></i>';
             icon.classList.add('message-info');
     }
+
+    // Ensure we have the OK button
+    const okBtn = document.getElementById('message-ok-btn');
+    if (!okBtn) {
+        // Restore the OK button if it's missing
+        const container = document.querySelector('#message-modal .bg-white');
+        if (container) {
+            const lastChild = container.lastElementChild;
+            if (lastChild && lastChild.id !== 'message-ok-btn') {
+                lastChild.outerHTML = `
+                    <button id="message-ok-btn" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 rounded-lg transition">
+                        OK
+                    </button>
+                `;
+            }
+        }
+    }
+    
+    // Re-attach event listener
+    const newOkBtn = document.getElementById('message-ok-btn');
+    if (newOkBtn) {
+        newOkBtn.replaceWith(newOkBtn.cloneNode(true)); // Remove existing listeners
+        document.getElementById('message-ok-btn').addEventListener('click', hideMessageModal);
+    }
     
     // Show modal
     modal.classList.remove('hidden');
-}
-
-function hideMessageModal() {
-    const modal = document.getElementById('message-modal');
-    modal.classList.add('hidden');
 }
 
 // Initialize modal events
