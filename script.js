@@ -17,7 +17,8 @@ let gameState = {
     },
     isSolving: false,
     aiInterval: null,
-    aiStep: 0
+    aiStep: 0,
+    solvedByAI: false
 };
 
 // DOM Elements
@@ -40,6 +41,7 @@ const aiCurrentCell = document.getElementById('ai-current-cell');
 function init() {
     loadStatistics();
     setupEventListeners();
+    initModals();
 }
 
 // Load statistics from localStorage
@@ -109,6 +111,7 @@ function setupEventListeners() {
         gameCompleteModal.classList.add('hidden');
         goHome();
     });
+    document.getElementById('review-solution-btn').addEventListener('click', reviewSolution);
     
     // AI solving modal buttons
     document.getElementById('pause-ai-btn').addEventListener('click', pauseAISolving);
@@ -116,6 +119,55 @@ function setupEventListeners() {
     
     // Keyboard events
     document.addEventListener('keydown', handleKeyPress);
+
+}
+
+// Review Solution function
+function reviewSolution() {
+    // Hide the completion modal
+    gameCompleteModal.classList.add('hidden');
+    gameState.isSolving = false;
+    
+    // Highlight the solution for review
+    highlightSolution();
+    
+    // Show a message that user can now review the solution
+    setTimeout(() => {
+        showMessageModal(
+            'Review Solution', 
+            'You can now review the completed solution. Compare your notes with the AI\'s solution!',
+            'info'
+        );
+    }, 500);
+}
+
+// Highlight the solution for review
+function highlightSolution() {
+    // Remove any existing highlights
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('solution-highlight', 'user-correct', 'user-incorrect');
+    });
+    
+    // Highlight cells that were filled by AI vs user
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+            
+            if (gameState.initialBoard[i][j] === 0) { // If it was an empty cell originally
+                if (gameState.solvedByAI) {
+                    // If AI solved, highlight all AI-filled cells
+                    cell.classList.add('solution-highlight');
+                } else {
+                    // If user solved, check if user's input matches solution
+                    if (gameState.board[i][j] === gameState.solution[i][j]) {
+                        cell.classList.add('user-correct');
+                    } else {
+                        cell.classList.add('user-incorrect');
+                    }
+                }
+            }
+        }
+    }
 }
 
 // Start a new game
@@ -128,6 +180,8 @@ function startGame(difficulty) {
     gameState.difficulty = difficulty;
     gameState.hintsUsed = 0;
     gameState.selectedCell = null;
+    gameState.solvedByAI = false;
+    gameState.isSolving = false;
     
     // Update UI
     homePage.classList.add('hidden');
@@ -514,32 +568,58 @@ function checkBoard() {
     
     let hasErrors = false;
     let isComplete = true;
+    let wrongCells = 0;
+    let emptyCells = 0;
+    
+    // First, remove all existing error highlights
+    document.querySelectorAll('.cell.error').forEach(cell => {
+        cell.classList.remove('error');
+    });
     
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
             const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
             const value = gameState.board[i][j];
             
+            // Check if cell is empty
             if (value === 0) {
                 isComplete = false;
+                emptyCells++;
                 continue;
             }
             
+            // Check if the value matches the solution
             if (value !== gameState.solution[i][j]) {
                 cell.classList.add('error');
                 hasErrors = true;
-            } else {
-                cell.classList.remove('error');
+                wrongCells++;
             }
         }
     }
     
+    // Show appropriate message in modal
     if (hasErrors) {
-        alert('There are errors in your solution. Please check the red highlighted cells.');
+        showMessageModal(
+            'Errors Found',
+            `Found ${wrongCells} incorrect cells${emptyCells > 0 ? ` and ${emptyCells} empty cells` : ''}.`,
+            'error'
+        );
     } else if (!isComplete) {
-        alert('Puzzle is not complete yet. Keep going!');
+        showMessageModal(
+            'Good Progress!',
+            `All filled cells are correct! ${emptyCells} cells left to complete the puzzle.`,
+            'warning'
+        );
     } else {
-        completeGame();
+        // Only complete game if board is complete AND has no errors
+        showMessageModal(
+            'Congratulations!',
+            'You have successfully solved the puzzle!',
+            'success'
+        );
+        setTimeout(() => {
+            completeGame();
+        }, 2000);
     }
 }
 
@@ -548,7 +628,11 @@ function provideHint() {
     if (gameState.isSolving) return;
     
     if (!gameState.selectedCell) {
-        alert('Please select a cell first!');
+        showMessageModal(
+            'Select a Cell',
+            'Please select an empty cell first to get a hint!',
+            'warning'
+        );
         return;
     }
     
@@ -573,6 +657,12 @@ function provideHint() {
         if (isBoardComplete()) {
             completeGame();
         }
+    } else {
+        showMessageModal(
+            'Cell Already Filled',
+            'Please select an empty cell to get a hint!',
+            'warning'
+        );
     }
 }
 
@@ -580,19 +670,124 @@ function provideHint() {
 function startAISolving() {
     if (gameState.isSolving) return;
     
-    if (confirm('Are you sure you want the AI to solve the puzzle step by step?')) {
-        gameState.isSolving = true;
-        gameState.aiStep = 0;
-        aiSolvingModal.classList.remove('hidden');
-        aiStepCount.textContent = gameState.aiStep;
+    // Show confirmation modal
+    showConfirmModal(
+        'AI Solve Puzzle',
+        'Are you sure you want the AI to solve the puzzle step by step?',
+        () => {
+            // Yes callback
+            startAISolvingProcess();
+        },
+        () => {
+            // No callback - do nothing
+        }
+    );
+}
+
+// Show confirmation modal with Yes/No buttons - FIXED VERSION
+function showConfirmModal(title, content, onConfirm, onCancel) {
+    const modal = document.getElementById('message-modal');
+    const icon = document.getElementById('message-icon');
+    const titleEl = document.getElementById('message-title');
+    const contentEl = document.getElementById('message-content');
+    const okBtn = document.getElementById('message-ok-btn');
+    
+    // Set content
+    titleEl.textContent = title;
+    contentEl.textContent = content;
+    icon.innerHTML = '<i class="fas fa-question-circle"></i>';
+    icon.className = 'text-6xl mb-4 text-yellow-500';
+    
+    // Store original button HTML to restore later
+    const originalButtonHTML = okBtn.outerHTML;
+    
+    // Replace single button with two buttons
+    const buttonsHTML = `
+        <div class="flex space-x-4">
+            <button id="confirm-yes" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg transition">
+                Yes
+            </button>
+            <button id="confirm-no" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 rounded-lg transition">
+                No
+            </button>
+        </div>
+    `;
+    
+    okBtn.outerHTML = buttonsHTML;
+    
+    // Add event listeners
+    document.getElementById('confirm-yes').addEventListener('click', () => {
+        // COMPLETELY remove the modal first
+        modal.classList.add('hidden');
         
-        document.getElementById('check-btn').disabled = true;
-        document.getElementById('hint-btn').disabled = true;
-        document.getElementById('solve-btn').disabled = true;
+        // Force a reflow to ensure the modal is gone
+        void modal.offsetHeight;
         
-        solveStepByStep();
+        // Restore button and call callback
+        restoreOriginalModalButton(originalButtonHTML);
+        if (onConfirm) onConfirm();
+    });
+    
+    document.getElementById('confirm-no').addEventListener('click', () => {
+        // COMPLETELY remove the modal first
+        modal.classList.add('hidden');
+        
+        // Force a reflow to ensure the modal is gone
+        void modal.offsetHeight;
+        
+        // Restore button and call callback
+        restoreOriginalModalButton(originalButtonHTML);
+        if (onCancel) onCancel();
+    });
+    
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+// Restore original OK button after confirmation modal
+function restoreOriginalModalButton(originalHTML) {
+    const buttonContainer = document.querySelector('#message-modal .flex');
+    if (buttonContainer) {
+        buttonContainer.outerHTML = originalHTML;
+        // Re-attach event listener to the new OK button
+        document.getElementById('message-ok-btn').addEventListener('click', hideMessageModal);
     }
 }
+
+// Make sure hideMessageModal properly hides everything
+function hideMessageModal() {
+    const modal = document.getElementById('message-modal');
+    modal.classList.add('hidden');
+    
+    // Force a reflow
+    void modal.offsetHeight;
+}
+
+function startAISolvingProcess() {
+    // Double-check that message modal is completely hidden
+    const messageModal = document.getElementById('message-modal');
+    messageModal.classList.add('hidden');
+    
+    // Force hide any other potential overlays
+    document.querySelectorAll('.fixed.inset-0.bg-black').forEach(modal => {
+        if (modal.id !== 'ai-solving-modal') {
+            modal.classList.add('hidden');
+        }
+    });
+    
+    // Now show the AI modal
+    gameState.isSolving = true;
+    gameState.aiStep = 0;
+    aiSolvingModal.classList.remove('hidden');
+    aiStepCount.textContent = gameState.aiStep;
+    
+    document.getElementById('check-btn').disabled = true;
+    document.getElementById('hint-btn').disabled = true;
+    document.getElementById('solve-btn').disabled = true;
+    
+    solveStepByStep();
+}
+
 
 // Solve the board step by step
 function solveStepByStep() {
@@ -609,8 +804,9 @@ function solveStepByStep() {
         }
         
         if (currentRow >= 9) {
-            stopAISolving();
-            completeGame();
+            clearInterval(gameState.aiInterval);
+            gameState.isSolving = true;
+            completeGame(); // This will handle setting solvedByAI correctly
             return;
         }
         
@@ -667,11 +863,15 @@ function stopAISolving() {
 // Complete the game
 function completeGame() {
     clearInterval(gameState.timerInterval);
-    
+
+    gameState.solvedByAI = gameState.isSolving;
+
     if (gameState.isSolving) {
         stopAISolving();
+        gameState.isSolving = false;
     }
-    
+
+    console.log('Solved by AI:', gameState.solvedByAI);
     gameState.gamesPlayed++;
     
     const currentTime = gameState.elapsedTime;
@@ -683,8 +883,39 @@ function completeGame() {
     
     saveStatistics();
     
-    completionTime.textContent = formatTime(currentTime);
-    completionDifficulty.textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
+    // Safely update elements that exist
+    if (completionTime) completionTime.textContent = formatTime(currentTime);
+    if (completionDifficulty) completionDifficulty.textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
+
+    // Update completion message and show appropriate buttons
+    const completionMessage = document.getElementById('completion-message');
+    const solvedBy = document.getElementById('solved-by');
+    const reviewBtn = document.getElementById('review-solution-btn');
+
+    console.log('Review button found:', reviewBtn);
+    console.log('Completion message found:', completionMessage);
+    console.log('Solved by found:', solvedBy);
+
+    if (completionMessage) {
+        completionMessage.textContent = gameState.solvedByAI 
+            ? "The AI has solved the puzzle!" 
+            : "Congratulations! You've solved the puzzle.";
+    }
+    
+    if (solvedBy) {
+        solvedBy.textContent = gameState.solvedByAI ? "AI" : "You";
+    }
+    
+    if (reviewBtn) {
+        if (gameState.solvedByAI) {
+            reviewBtn.classList.remove('hidden');
+            console.log('Showing review button');
+        } else {
+            reviewBtn.classList.add('hidden');
+            console.log('Hiding review button');
+        }
+    }
+
     gameCompleteModal.classList.remove('hidden');
 }
 
@@ -719,6 +950,11 @@ function goHome() {
         stopAISolving();
     }
     
+    // Reset all game state flags
+    gameState.isSolving = false;
+    gameState.solvedByAI = false;
+    gameState.selectedCell = null;
+
     clearInterval(gameState.timerInterval);
     gamePage.classList.add('hidden');
     homePage.classList.remove('hidden');
@@ -750,6 +986,66 @@ function handleKeyPress(e) {
     else if (key === 'Backspace' || key === 'Delete') {
         eraseCell();
     }
+}
+
+// Modal Management
+function showMessageModal(title, content, type = 'info') {
+    const modal = document.getElementById('message-modal');
+    const icon = document.getElementById('message-icon');
+    const titleEl = document.getElementById('message-title');
+    const contentEl = document.getElementById('message-content');
+    
+    // Set content
+    titleEl.textContent = title;
+    contentEl.textContent = content;
+    
+    // Set icon and color based on type
+    icon.className = 'text-6xl mb-4';
+    switch(type) {
+        case 'success':
+            icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            icon.classList.add('message-success');
+            break;
+        case 'error':
+            icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            icon.classList.add('message-error');
+            break;
+        case 'warning':
+            icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            icon.classList.add('message-warning');
+            break;
+        default:
+            icon.innerHTML = '<i class="fas fa-info-circle"></i>';
+            icon.classList.add('message-info');
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+function hideMessageModal() {
+    const modal = document.getElementById('message-modal');
+    modal.classList.add('hidden');
+}
+
+// Initialize modal events
+function initModals() {
+    // Message modal OK button
+    document.getElementById('message-ok-btn').addEventListener('click', hideMessageModal);
+    
+    // Close modal when clicking backdrop
+    document.getElementById('message-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideMessageModal();
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideMessageModal();
+        }
+    });
 }
 
 // ===== PWA SETUP =====
