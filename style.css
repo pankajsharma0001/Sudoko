@@ -1,0 +1,155 @@
+.cell {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+@media (min-width: 640px) {
+    .cell {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* AI Solving Modal - MOBILE FRIENDLY */
+#ai-solving-modal {
+    position: fixed;
+    z-index: 100;
+}
+
+/* Mobile - Smaller modal positioned at bottom */
+@media (max-width: 767px) {
+    #ai-solving-modal {
+        width: 95%;
+        max-width: 320px;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+    }
+
+    #ai-solving-modal .text-6xl {
+        font-size: 2.5rem;
+    }
+
+    #ai-solving-modal .text-3xl {
+        font-size: 1.5rem;
+    }
+
+    #ai-solving-modal p {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    #ai-solving-modal .p-8 {
+        padding: 1.5rem;
+    }
+}
+
+/* Desktop - Position over controls panel */
+@media (min-width: 768px) {
+    #ai-solving-modal {
+        width: 320px;
+        top: 50%;
+        right: 2rem;
+        transform: translateY(-50%);
+        left: auto;
+    }
+}
+
+.board-row:nth-child(3n) {
+    border-bottom: 3px solid #4b5563;
+}
+
+.cell:nth-child(3n) {
+    border-right: 3px solid #4b5563;
+}
+
+.cell:not(:last-child) {
+    border-right: 1px solid #9ca3af;
+}
+
+.board-row:not(:last-child) {
+    border-bottom: 1px solid #9ca3af;
+}
+
+.cell.error {
+    background-color: #fecaca;
+}
+
+.cell.given {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.cell.user-input {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.cell.highlight {
+    background-color: #fef3c7;
+}
+
+.cell.selected {
+    background-color: #dbeafe;
+    border: 2px solid #3b82f6;
+}
+
+.number-button.selected {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cell.ai-solving {
+    background-color: #bbf7d0;
+    animation: aiPulse 1s infinite;
+}
+
+@keyframes aiPulse {
+    0% {
+        background-color: #bbf7d0;
+    }
+
+    50% {
+        background-color: #86efac;
+    }
+
+    100% {
+        background-color: #bbf7d0;
+    }
+}
