@@ -20,7 +20,8 @@ let gameState = {
     isSolving: false,
     aiInterval: null,
     aiStep: 0,
-    solvedByAI: false
+    solvedByAI: false,
+    isAIModeUsed: false
 };
 
 // DOM Elements
@@ -337,6 +338,7 @@ function startGame(difficulty) {
     gameState.selectedCell = null;
     gameState.solvedByAI = false;
     gameState.isSolving = false;
+    gameState.isAIModeUsed = false;
     
     // Update UI
     homePage.classList.add('hidden');
@@ -953,6 +955,9 @@ function startAISolvingProcess() {
     // Double-check that message modal is completely hidden
     const messageModal = document.getElementById('message-modal');
     messageModal.classList.add('hidden');
+
+    // Mark that AI mode is being used
+    gameState.isAIModeUsed = true;
     
     // Now show the AI modal
     gameState.isSolving = true;
@@ -1082,7 +1087,7 @@ function stopAISolving() {
 function completeGame() {
     clearInterval(gameState.timerInterval);
 
-    gameState.solvedByAI = gameState.isSolving;
+    gameState.solvedByAI = gameState.isAIModeUsed;
 
     if (gameState.isSolving) {
         stopAISolving();
@@ -1090,6 +1095,7 @@ function completeGame() {
     }
 
     console.log('Solved by AI:', gameState.solvedByAI);
+    console.log('AI Mode Used:', gameState.isAIModeUsed);
     gameState.gamesPlayed++;
     
     const currentTime = gameState.elapsedTime;
@@ -1100,7 +1106,7 @@ function completeGame() {
     }
     
     // Reward player for completing puzzle (unless AI solved it)
-    if (!gameState.solvedByAI) {
+    if (!gameState.isAIModeUsed) {
         const rewardHints = 1;
         const rewardCoins = gameState.difficulty === 'easy' ? 2 : 
                            gameState.difficulty === 'medium' ? 3 : 5;
@@ -1114,6 +1120,15 @@ function completeGame() {
                 'Reward Earned!',
                 `You earned ${rewardHints} hint${rewardHints > 1 ? 's' : ''} and ${rewardCoins} coins for completing the ${gameState.difficulty} puzzle!`,
                 'success'
+            );
+        }, 1000);
+    } else {
+        // Show no reward message if AI was used
+        setTimeout(() => {
+            showMessageModal(
+                'Puzzle Complete',
+                `You completed the puzzle with AI assistance. No rewards were given.`,
+                'info'
             );
         }, 1000);
     }
@@ -1186,6 +1201,7 @@ function goHome() {
     gameState.isSolving = false;
     gameState.solvedByAI = false;
     gameState.selectedCell = null;
+    gameState.isAIModeUsed = false;
 
     clearInterval(gameState.timerInterval);
     gamePage.classList.add('hidden');
