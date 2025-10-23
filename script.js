@@ -1324,9 +1324,17 @@ let deferredPrompt;
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js')
+    // Add version parameter to force update
+    const swUrl = './sw.js?v=' + new Date().getTime();
+    
+    navigator.serviceWorker.register(swUrl)
       .then(function(registration) {
         console.log('✅ ServiceWorker registered with scope:', registration.scope);
+        
+        // Check for updates every hour
+        setInterval(() => {
+          registration.update();
+        }, 60 * 60 * 1000);
       })
       .catch(function(error) {
         console.log('❌ ServiceWorker registration failed:', error);
