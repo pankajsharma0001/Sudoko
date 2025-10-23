@@ -1101,8 +1101,20 @@ function completeGame() {
     const currentTime = gameState.elapsedTime;
     const bestTime = gameState.bestTimes[gameState.difficulty];
     
-    if (!bestTime || currentTime < bestTime) {
-        gameState.bestTimes[gameState.difficulty] = currentTime;
+    // Only update best time if AI was NOT used and it's a new best time
+    if (!gameState.isAIModeUsed) {  // ← ADD THIS CONDITION
+        if (!bestTime || currentTime < bestTime) {
+            gameState.bestTimes[gameState.difficulty] = currentTime;
+            
+            // Show best time achievement message
+            setTimeout(() => {
+                showMessageModal(
+                    'New Best Time!',
+                    `You set a new ${gameState.difficulty} difficulty record: ${formatTime(currentTime)}!`,
+                    'success'
+                );
+            }, 1500);
+        }
     }
     
     // Reward player for completing puzzle (unless AI solved it)
