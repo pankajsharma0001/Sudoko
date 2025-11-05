@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Strategies & Tips - Sudoku Pro</title>
+    <meta name="description" content="Master Sudoku with advanced strategies and techniques. Learn scanning, cross-hatching, candidate elimination, and expert methods to solve puzzles faster.">
+    
+    <!-- Google AdSense Code -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7250272579898318" crossorigin="anonymous"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T87MHCP4XB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-T87MHCP4XB');
+    </script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h1 class="text-3xl font-bold text-indigo-700 mb-6">Sudoku Strategies & Techniques</h1>
+            
+            <div class="prose max-w-none">
+                <section class="mb-8">
+                    <p class="text-gray-600 mb-6">
+                        Mastering Sudoku requires more than just understanding the basic rules. These proven strategies 
+                        and techniques will help you solve puzzles faster and tackle even the most challenging difficulty levels.
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Beginner Strategies</h2>
+                    <div class="space-y-6">
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">1. Scanning Technique</h3>
+                            <p class="text-gray-600 mb-3">
+                                Systematically scan rows, columns, and boxes to identify obvious placements.
+                            </p>
+                            <div class="bg-green-50 p-3 rounded">
+                                <p class="text-green-800 font-semibold">How to practice:</p>
+                                <ul class="text-green-700 text-sm list-disc list-inside mt-1">
+                                    <li>Scan each row for missing numbers</li>
+                                    <li>Scan each column for obvious placements</li>
+                                    <li>Check each 3×3 box for single possibilities</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">2. Cross-Hatching</h3>
+                            <p class="text-gray-600 mb-3">
+                                Look at the intersection of rows and columns to eliminate possibilities.
+                            </p>
+                            <div class="bg-blue-50 p-3 rounded">
+                                <p class="text-blue-800 font-semibold">Example:</p>
+                                <p class="text-blue-700 text-sm mt-1">If number 5 is in row 2 and column 4, it can't be in the cell where row 2 and column 4 intersect with any 3×3 box.</p>
+                            </div>
+                        </div>
+
+                        <div class="border-l-4 border-purple-500 pl-4">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">3. Counting Method</h3>
+                            <p class="text-gray-600 mb-3">
+                                Count 1-9 in each row, column, and box to identify missing numbers.
+                            </p>
+                            <div class="bg-purple-50 p-3 rounded">
+                                <p class="text-purple-800 font-semibold">Tip:</p>
+                                <p class="text-purple-700 text-sm mt-1">Start with numbers that appear most frequently in the puzzle.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Intermediate Strategies</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-yellow-800 mb-2">Pencil Marks</h3>
+                            <p class="text-gray-700 mb-3">Write small possible numbers in empty cells to track candidates.</p>
+                            <div class="bg-yellow-100 p-2 rounded text-sm">
+                                <p class="text-yellow-800"><strong>Pro Tip:</strong> Eliminate candidates as you find placements.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-indigo-800 mb-2">Single Candidate</h3>
+                            <p class="text-gray-700 mb-3">When a cell has only one possible number, it must be that number.</p>
+                            <div class="bg-indigo-100 p-2 rounded text-sm">
+                                <p class="text-indigo-800"><strong>Look for:</strong> Cells where 8 numbers are already eliminated.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-pink-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-pink-800 mb-2">Hidden Singles</h3>
+                            <p class="text-gray-700 mb-3">A number that can only go in one cell within a row, column, or box.</p>
+                            <div class="bg-pink-100 p-2 rounded text-sm">
+                                <p class="text-pink-800"><strong>Scan:</strong> Each number 1-9 across entire grid.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-teal-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-teal-800 mb-2">Naked Pairs</h3>
+                            <p class="text-gray-700 mb-3">Two cells in same unit with exactly the same two candidates.</p>
+                            <div class="bg-teal-100 p-2 rounded text-sm">
+                                <p class="text-teal-800"><strong>Result:</strong> Eliminate these two numbers from other cells in the unit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Advanced Techniques</h2>
+                    <div class="space-y-4">
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-red-800 mb-2">X-Wing Strategy</h3>
+                            <p class="text-gray-700 mb-2">
+                                When a number appears as a candidate in exactly two cells in two different rows, 
+                                and these cells also lie in exactly two columns.
+                            </p>
+                            <p class="text-red-700 text-sm">
+                                <strong>Effect:</strong> You can eliminate that number from other cells in those two columns.
+                            </p>
+                        </div>
+
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-orange-800 mb-2">Swordfish Pattern</h3>
+                            <p class="text-gray-700 mb-2">
+                                An advanced version of X-Wing involving three rows and three columns.
+                            </p>
+                            <p class="text-orange-700 text-sm">
+                                <strong>When to use:</strong> For extremely difficult puzzles when basic techniques fail.
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Unique Rectangle</h3>
+                            <p class="text-gray-700 mb-2">
+                                Avoids creating multiple solutions by recognizing deadly patterns.
+                            </p>
+                            <p class="text-gray-700 text-sm">
+                                <strong>Advanced concept:</strong> Prevents puzzles from having more than one solution.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Step-by-Step Solving Approach</h2>
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg">
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">1</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Initial Scan</h3>
+                                    <p class="text-gray-600">Quickly fill obvious numbers using scanning and cross-hatching.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">2</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Pencil Marks</h3>
+                                    <p class="text-gray-600">Add candidate numbers to all empty cells.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">3</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Elimination</h3>
+                                    <p class="text-gray-600">Systematically eliminate candidates using strategies.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">4</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Advanced Techniques</h3>
+                                    <p class="text-gray-600">Apply X-Wing, Swordfish, or other advanced methods if stuck.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">5</div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Verification</h3>
+                                    <p class="text-gray-600">Double-check rows, columns, and boxes for accuracy.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Common Mistakes to Avoid</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-red-50 p-3 rounded">
+                            <h3 class="font-semibold text-red-800 mb-1">❌ Guessing</h3>
+                            <p class="text-red-700 text-sm">Sudoku can always be solved logically without guessing.</p>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded">
+                            <h3 class="font-semibold text-red-800 mb-1">❌ Ignoring Pencil Marks</h3>
+                            <p class="text-red-700 text-sm">Not tracking candidates leads to repeated scanning.</p>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded">
+                            <h3 class="font-semibold text-red-800 mb-1">❌ Rushing</h3>
+                            <p class="text-red-700 text-sm">Take time to analyze the entire grid systematically.</p>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded">
+                            <h3 class="font-semibold text-red-800 mb-1">❌ Forgetting Box Constraints</h3>
+                            <p class="text-red-700 text-sm">Remember the 3×3 box rule is equally important.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Practice Tips</h2>
+                    <ul class="text-gray-600 list-disc list-inside space-y-2">
+                        <li><strong>Start with easier puzzles</strong> to build confidence</li>
+                        <li><strong>Time yourself</strong> to track improvement</li>
+                        <li><strong>Practice daily</strong> for consistent progress</li>
+                        <li><strong>Learn one strategy at a time</strong> until mastered</li>
+                        <li><strong>Use our AI helper</strong> when you need guidance</li>
+                        <li><strong>Take breaks</strong> to maintain fresh perspective</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <a href="index.html" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg transition inline-flex items-center justify-center">
+                    <i class="fas fa-play mr-2"></i>Practice Now
+                </a>
+                <a href="benefits.html" class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition inline-flex items-center justify-center">
+                    <i class="fas fa-brain mr-2"></i>Learn Benefits
+                </a>
+                <a href="how-to-play.html" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition inline-flex items-center justify-center">
+                    <i class="fas fa-book mr-2"></i>Basic Rules
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

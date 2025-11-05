@@ -359,6 +359,11 @@ function startGame(difficulty) {
     
     // Update statistics
     updateStatisticsDisplay();
+
+    trackGameEvent('game_start', {
+        difficulty: difficulty,
+        category: 'Gameplay'
+    });
 }
 
 // Generate a complete Sudoku board
@@ -833,6 +838,12 @@ function provideHint() {
             'warning'
         );
     }
+
+    trackGameEvent('hint_used', {
+        difficulty: gameState.difficulty,
+        hints_remaining: gameState.hintsRemaining,
+        category: 'Features'
+    });
 }
 
 // Start AI solving
@@ -1083,6 +1094,13 @@ function stopAISolving() {
     });
 }
 
+// Google Analytics event tracking
+function trackGameEvent(eventName, parameters) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, parameters);
+    }
+}
+
 // Complete the game
 function completeGame() {
     clearInterval(gameState.timerInterval);
@@ -1176,6 +1194,14 @@ function completeGame() {
 
     gameCompleteModal.classList.remove('hidden');
     updateStatisticsDisplay();
+
+    trackGameEvent('game_complete', {
+        difficulty: gameState.difficulty,
+        completion_time: gameState.elapsedTime,
+        hints_used: gameState.hintsUsed,
+        ai_used: gameState.isAIModeUsed,
+        category: 'Gameplay'
+    });
 }
 
 // Start the timer

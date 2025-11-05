@@ -3,12 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku Game</title>
+    <title>Sudoku Pro - Play Free Online Sudoku Puzzles</title>
+    <meta name="description" content="Play free Sudoku puzzles online. Improve your logic skills with easy, medium, and hard difficulty levels. Features AI solver, hints, and progress tracking.">
 
     <!-- Google AdSense Code -->
     <script 
         async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7250272579898318" crossorigin="anonymous">
     </script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T87MHCP4XB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-T87MHCP4XB');
+    </script>
+
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +28,6 @@
     <meta name="apple-mobile-web-app-title" content="Sudoku">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
 
-    <script defer src="/_vercel/insights/script.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -25,9 +36,34 @@
     <!-- Home Page -->
     <div id="home-page" class="w-full max-w-md mx-auto text-center">
         <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 fade-in">
-            <h1 class="text-4xl font-bold text-indigo-700 mb-2">Sudoku</h1>
-            <p class="text-gray-600 mb-8">Challenge your mind with the classic number puzzle</p>
-            
+            <h1 class="text-4xl font-bold text-indigo-700 mb-2">Sudoku</h1>            
+            <!-- Mobile-optimized content section -->
+            <div class="mb-6">
+                <p class="text-gray-600 text-sm mb-4">
+                    Challenge your mind with classic Sudoku. Perfect for beginners and experts alike with multiple difficulty levels and smart features.
+                </p>
+                
+                <!-- Compact feature grid for mobile -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="text-center p-3 bg-blue-50 rounded-lg">
+                        <i class="fas fa-brain text-lg text-blue-500 mb-1"></i>
+                        <h3 class="font-semibold text-blue-800 text-xs">Brain Training</h3>
+                    </div>
+                    <div class="text-center p-3 bg-green-50 rounded-lg">
+                        <i class="fas fa-mobile-alt text-lg text-green-500 mb-1"></i>
+                        <h3 class="font-semibold text-green-800 text-xs">Cross Platform</h3>
+                    </div>
+                    <div class="text-center p-3 bg-purple-50 rounded-lg">
+                        <i class="fas fa-robot text-lg text-purple-500 mb-1"></i>
+                        <h3 class="font-semibold text-purple-800 text-xs">AI Helper</h3>
+                    </div>
+                    <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                        <i class="fas fa-chart-line text-lg text-yellow-500 mb-1"></i>
+                        <h3 class="font-semibold text-yellow-800 text-xs">Achievements</h3>
+                    </div>
+                </div>
+            </div>
+
             <div class="space-y-4">
                 <button id="easy-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:-translate-y-1">
                     <i class="fas fa-seedling mr-2"></i>Easy
@@ -40,24 +76,6 @@
                 </button>
             </div>
             
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">How to Play</h2>
-                <ul class="text-left text-gray-600 space-y-2">
-                    <li class="flex items-start">
-                        <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                        <span>Fill the grid so every row, column, and 3×3 box contains digits 1-9</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                        <span>No number can repeat in any row, column, or 3×3 box</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                        <span>Use the number pad or keyboard to enter numbers</span>
-                    </li>
-                </ul>
-            </div>
-            
             <div id="install-promo" class="hidden mt-4 p-4 bg-blue-50 rounded-lg">
                 <p class="text-blue-800 mb-2">Install Sudoku for better experience!</p>
                 <button onclick="installApp()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
@@ -66,12 +84,15 @@
             </div>
             
             <div class="text-gray-500 text-sm mt-8">
-                <p>Created with HTML, JavaScript & Tailwind CSS</p>
-                <p class="mt-2">
-                    <a href="privacy-policy.html" class="text-indigo-600 hover:text-indigo-800 underline">
-                        Privacy Policy
-                    </a>
-                </p>
+                <p>Sudoku Pro - The Ultimate Sudoku Experience</p>
+                <div class="mt-3 space-x-4">
+                    <a href="how-to-play.html" class="text-indigo-600 hover:text-indigo-800 underline">How to Play</a>
+                    <a href="privacy-policy.html" class="text-indigo-600 hover:text-indigo-800 underline">Privacy Policy</a>
+                    <a href="benefits.html" class="text-indigo-600 hover:text-indigo-800 underline text-xs">Benefits</a>
+                    <a href="about.html" class="text-indigo-600 hover:text-indigo-800 underline text-xs">About</a>
+                    <a href="strategies.html" class="text-indigo-600 hover:text-indigo-800 underline text-xs">Strategies</a>
+                </div>
+                <p class="mt-2">Created with HTML, JavaScript & Tailwind CSS</p>
             </div>
         </div>
     </div>
