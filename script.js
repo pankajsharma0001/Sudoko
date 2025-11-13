@@ -80,6 +80,15 @@ function updateStatisticsDisplay() {
     const bestTime = gameState.bestTimes[gameState.difficulty];
     bestTimeElement.textContent = bestTime ? formatTime(bestTime) : '--:--';
 
+    // Update mobile statistics
+    const mobileGamesPlayed = document.getElementById('mobile-games-played');
+    const mobileBestTime = document.getElementById('mobile-best-time');
+    const mobileHintsUsed = document.getElementById('mobile-hints-used');
+    
+    if (mobileGamesPlayed) mobileGamesPlayed.textContent = gameState.gamesPlayed;
+    if (mobileBestTime) mobileBestTime.textContent = bestTime ? formatTime(bestTime) : '--:--';
+    if (mobileHintsUsed) mobileHintsUsed.textContent = gameState.hintsUsed;
+
     updateHintButton();
 }
 
